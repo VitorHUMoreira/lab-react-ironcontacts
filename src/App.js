@@ -1,11 +1,50 @@
 import "./App.css";
-import contactsJSON from "./contacts.json";
-import { useState, useEffect } from "react";
+import contacts from "./contacts.json";
+import { useState } from "react";
 
 function App() {
-  const contacts = contactsJSON;
+  const randomStart = Math.floor(Math.random() * (contacts.length - 6));
+  const [fiveContacts, setFiveContacts] = useState(
+    contacts.slice(randomStart, randomStart + 5)
+  );
 
-  const [fiveContacts, setFiveContacts] = useState(contacts.slice(0, 5));
+  function addRandom() {
+    if (fiveContacts.length > 51) {
+      return;
+    } else {
+      const randomContact =
+        contacts[Math.floor(Math.random() * contacts.length)];
+
+      fiveContacts.includes(randomContact)
+        ? addRandom()
+        : setFiveContacts([...fiveContacts, randomContact]);
+
+      console.log("clicou");
+      console.log(fiveContacts.length);
+    }
+  }
+
+  function sortPopularity() {
+    setFiveContacts([
+      ...fiveContacts.sort((a, b) => {
+        return b.popularity - a.popularity;
+      }),
+    ]);
+  }
+
+  function deleteBtn(id) {
+    setFiveContacts(
+      fiveContacts.filter((contact) => {
+        return contact.id !== id;
+      })
+    );
+  }
+
+  function sortName() {
+    setFiveContacts([
+      ...fiveContacts.sort((a, b) => a.name.localeCompare(b.name)),
+    ]);
+  }
 
   const [search, setSearch] = useState("");
 
@@ -13,26 +52,18 @@ function App() {
     setSearch(e.target.value);
   }
 
-  function addRandom() {
-    let randomContact = contacts[Math.floor(Math.random() * contacts.length)];
-
-    fiveContacts.includes(randomContact)
-      ? addRandom()
-      : setFiveContacts([...fiveContacts, randomContact]);
-
-    console.log("clicou");
-    console.log(fiveContacts.length);
-  }
-
   return (
     <div className="App">
       <h1>Iron Contacts</h1>
+
       <div className="btns">
         <button onClick={addRandom}>Add Random Contact</button>
-        <button>Sort by popularity</button>
-        <button>Sort by name</button>
+        <button onClick={sortPopularity}>Sort by popularity</button>
+        <button onClick={sortName}>Sort by name</button>
       </div>
+
       <hr />
+
       <input
         className="search-input"
         type="search"
@@ -40,6 +71,7 @@ function App() {
         value={search}
         onChange={handleChange}
       />
+
       <div className="table-container">
         <table>
           <thead>
@@ -52,7 +84,16 @@ function App() {
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
+            {!fiveContacts.length && (
+              <tr>
+                <td className="oops">
+                  ⚠️ Oops! There is no more content to show.
+                </td>
+              </tr>
+            )}
+
             {fiveContacts
               .filter((contact) => {
                 return contact.name
@@ -66,7 +107,7 @@ function App() {
                       <img
                         src={contact.pictureUrl}
                         alt="profile pic"
-                        width={80}
+                        className="img-contact"
                       />
                     </td>
                     <td>{contact.name}</td>
@@ -74,7 +115,9 @@ function App() {
                     <td>{contact.wonOscar && "🏆"}</td>
                     <td>{contact.wonEmmy && "🏆"}</td>
                     <td>
-                      <button>Delete</button>
+                      <button onClick={() => deleteBtn(contact.id)}>
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 );
