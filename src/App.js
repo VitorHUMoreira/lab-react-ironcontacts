@@ -18,9 +18,6 @@ function App() {
       fiveContacts.includes(randomContact)
         ? addRandom()
         : setFiveContacts([...fiveContacts, randomContact]);
-
-      console.log("clicou");
-      console.log(fiveContacts.length);
     }
   }
 
